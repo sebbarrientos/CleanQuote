@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CleanQuote - Instant Cleaning Quotes</title>
+</head>
+<body>
+    <h1>Get Your Instant Cleaning Quote</h1>
+    <form action="/quote" method="post">
+        <label>Postcode:</label><br>
+        <input type="text" name="postcode" required><br><br>
+
+        <label>Bedrooms:</label><br>
+        <input type="number" name="bedrooms" required><br><br>
+
+        <label>Bathrooms:</label><br>
+        <input type="number" name="bathrooms" required><br><br>
+
+        <label>Pets (yes/no):</label><br>
+        <input type="text" name="pets" required><br><br>
+
+        <label>Cleaning Type:</label><br>
+        <select name="cleaning_type">
+            <option value="regular">Regular</option>
+            <option value="deep">Deep Clean</option>
+            <option value="end-of-tenancy">End of Tenancy</option>
+        </select><br><br>
+
+        <input type="submit" value="Get My Quote">
+    </form>
+</body>
+</html>
