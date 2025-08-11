@@ -1,30 +1,47 @@
 {
   "vat": 0,
-
+  "min_charge": 50,
+  "surcharges": {
+    "pets": 30,
+    "urgent_same_day": 50,
+    "congestion": 15,
+    "parking_flat": 5
+  },
   "end_of_tenancy": {
     "studio": 120,
-    "flat": { "1": 145, "2": 160, "3": 180, "4": 210, "5": 240 },
-    "house": { "1": 155, "2": 175, "3": 195, "4": 230, "5": 270 },
-    "extra_bathroom": 15,
-    "extra_wc": 10
+    "1_bed": 150,
+    "2_bed": 190,
+    "3_bed": 240,
+    "4_bed": 300
   },
-
-  "airbnb": {
-    "studio": 50,
-    "flat": { "1": 50, "2": 75, "3": 100, "4": 125, "5": 150 },
-    "house": { "1": 60, "2": 85, "3": 115, "4": 140, "5": 170 },
-    "extra_bathroom": 15
+  "airbnb_turnover": {
+    "studio": 70,
+    "1_bed": 85,
+    "2_bed": 105,
+    "3_bed": 130,
+    "4_bed": 160
   },
-
-  "optional_addons": {
-    "linen_service": 30,
-    "carpet_clean_small_bedroom": 20,
-    "carpet_clean_medium_bedroom": 25,
-    "carpet_clean_large_bedroom": 30,
-    "carpet_clean_stairs_per_step": 1,
-    "carpet_clean_living_area": 25,
-    "carpet_clean_hallway": 8,
-    "carpet_clean_large_rug": 12,
-    "carpet_clean_small_rug": 8
+  "communal": {
+    "base": { "small": 60, "medium": 90, "large": 130 },
+    "frequency_discounts": { "weekly": 0.15, "biweekly": 0.10, "monthly": 0.0 },
+    "extras": { "lift": 15, "bin_store": 10 }
+  },
+  "general_clean": {
+    "one_off_min": 60,
+    "recurring_discounts": { "weekly": 0.20, "biweekly": 0.10, "monthly": 0.05 }
+  },
+  "carpet": {
+    "room": 35,
+    "lounge": 45,
+    "bedroom": 30,
+    "landing_hall": 10,
+    "stairs_per_step": 2,
+    "stairs_flat": 30,
+    "rug_small": 15,
+    "rug_large": 25
+  },
+  "promo_codes": {
+    "WELCOME10": { "percent": 10, "active": true },
+    "NEWSLETTER5": { "percent": 5, "active": false }
   }
 }
