@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>{% block title %}CleanQuote{% endblock %}</title>
+  <title>{% block title %}Alba & Co Services{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
-  <meta name="description" content="Instant, itemised quotes for cleaning services.">
+  <meta name="description" content="Instant quotes for cleaning services.">
 </head>
 <body>
   <div class="container">
     <div class="header">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-      <h1>CleanQuote</h1>
+      <h1>Alba & Co Services</h1>
     </div>
     <div class="sub">{% block subtitle %}{% endblock %}</div>
 
