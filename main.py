@@ -10,11 +10,19 @@ client = OpenAI()
 with open("prices.json", "r") as f:
     PRICES = json.load(f)
 
-def compute_total(cleaning_type, property_type, bedrooms, bathrooms, wc, pets, addons):
+MIN_CHARGE = 50
+PETS_SURCHARGE = 30
+URGENT_SURCHARGE = 50
+
+def compute_total(cleaning_type, property_type, bedrooms, bathrooms, wc, pets_flag, urgent_flag, travel_flag):
     breakdown = []
     total = 0.0
+    note_lines = []
 
-    if cleaning_type == "end_of_tenancy":
+    ct = cleaning_type  # shorter alias
+
+    if ct == "end_of_tenancy":
+        # base
         if property_type == "studio":
             base = PRICES["end_of_tenancy"]["studio"]
         else:
@@ -22,10 +30,11 @@ def compute_total(cleaning_type, property_type, bedrooms, bathrooms, wc, pets, a
             base = table.get(str(bedrooms), 0)
 
         total += base
-        breakdown.append(f"{cleaning_type.replace('_',' ').title()} base ({property_type}, {bedrooms} bed): £{base}")
+        breakdown.append(f"End of Tenancy base ({property_type}, {bedrooms} bed): £{base}")
+        breakdown.append("First bathroom included")
 
         # extras
-        if bathrooms and bathrooms > 1:  # assume first bath included in base
+        if bathrooms and bathrooms > 1:
             extra_bath = (bathrooms - 1) * PRICES["end_of_tenancy"]["extra_bathroom"]
             total += extra_bath
             breakdown.append(f"Extra bathrooms ({bathrooms-1} × £{PRICES['end_of_tenancy']['extra_bathroom']}): £{extra_bath}")
@@ -35,39 +44,55 @@ def compute_total(cleaning_type, property_type, bedrooms, bathrooms, wc, pets, a
             total += wc_cost
             breakdown.append(f"Extra WC ({wc} × £{PRICES['end_of_tenancy']['extra_wc']}): £{wc_cost}")
 
-    elif cleaning_type == "airbnb":
+    elif ct == "airbnb":
+        # base
         if property_type == "studio":
             base = PRICES["airbnb"]["studio"]
         else:
             table = PRICES["airbnb"][property_type]
             base = table.get(str(bedrooms), 0)
-        total += base
-        breakdown.append(f"Airbnb base ({property_type}, {bedrooms} bed): £{base}")
 
-        if bathrooms and bathrooms > 1:  # extra bathrooms priced
+        total += base
+        breakdown.append(f"Airbnb turnover base ({property_type}, {bedrooms} bed): £{base}")
+
+        # extras
+        if bathrooms and bathrooms > 1:
             extra_bath = (bathrooms - 1) * PRICES["airbnb"]["extra_bathroom"]
             total += extra_bath
             breakdown.append(f"Extra bathrooms ({bathrooms-1} × £{PRICES['airbnb']['extra_bathroom']}): £{extra_bath}")
 
-    # add‑ons
-    for key in addons:
-        price = PRICES["optional_addons"].get(key)
-        if price:
-            total += price
-            breakdown.append(f"{key.replace('_',' ').title()}: £{price}")
+    else:
+        # For now, show minimum charge and ask to confirm pricing
+        breakdown.append(ct.replace("_", " ").title() + " – pricing to be confirmed")
+        note_lines.append("We’ll confirm the exact price based on size, access and frequency.")
+        total += 0  # will be raised to minimum below
 
-    # pets doesn’t change price in your list—left for future rules
-    if pets.lower().startswith("y"):
-        breakdown.append("Note: Pet‑friendly team assigned.")
+    # Surcharges / notes
+    if pets_flag:
+        total += PETS_SURCHARGE
+        breakdown.append(f"Pets present: £{PETS_SURCHARGE}")
 
-    # VAT if any
+    if urgent_flag:
+        total += URGENT_SURCHARGE
+        breakdown.append(f"Urgent booking (within 48hrs): £{URGENT_SURCHARGE}")
+
+    if travel_flag:
+        note_lines.append("Travel surcharge may apply (outside A4/A2) — we’ll confirm before booking.")
+
+    # Minimum charge
+    if total < MIN_CHARGE:
+        breakdown.append(f"Minimum charge applied: £{MIN_CHARGE}")
+        total = MIN_CHARGE
+
+    # VAT (currently 0 per your setup)
     vat_rate = PRICES.get("vat", 0)
     vat_amount = round(total * vat_rate, 2)
     if vat_rate > 0:
         breakdown.append(f"VAT ({int(vat_rate*100)}%): £{vat_amount}")
+
     grand_total = round(total + vat_amount, 2)
 
-    return grand_total, breakdown
+    return grand_total, breakdown, note_lines
 
 @app.route("/")
 def index():
@@ -76,65 +101,58 @@ def index():
 @app.route("/quote", methods=["POST"])
 def quote():
     data = {
-        "postcode": request.form.get("postcode","").strip(),
+        "postcode": request.form.get("postcode", "").strip(),
         "cleaning_type": request.form["cleaning_type"],
         "property_type": request.form["property_type"],
         "bedrooms": int(request.form["bedrooms"]),
         "bathrooms": int(request.form["bathrooms"]),
         "wc": int(request.form.get("wc", 0) or 0),
-        "pets": request.form["pets"],
-        "addons": request.form.getlist("addons")
+        "pets": request.form.get("pets", "No"),
+        "pets_flag": bool(request.form.get("pets_flag")),
+        "urgent_flag": bool(request.form.get("urgent_flag")),
+        "travel_flag": bool(request.form.get("travel_flag")),
     }
 
-    total, breakdown = compute_total(
+    total, breakdown, notes = compute_total(
         data["cleaning_type"], data["property_type"], data["bedrooms"],
-        data["bathrooms"], data["wc"], data["pets"], data["addons"]
+        data["bathrooms"], data["wc"], data["pets_flag"], data["urgent_flag"], data["travel_flag"]
     )
 
-    # Ask the model to PRESENT (not change) your numbers
-    upsell_lines = []
-    for key, price in PRICES["optional_addons"].items():
-        label = key.replace("_"," ").title()
-        upsell_lines.append(f"- {label}: £{price}")
-    upsell_text = "\n".join(upsell_lines[:6])
-
+    # Build prompt to PRESENT fixed numbers (no changes)
+    notes_text = "\n".join(f"- {n}" for n in notes) if notes else ""
     prompt = f"""
 You are a pricing assistant for a London cleaning company.
-Use EXACTLY these figures—do not change prices or totals.
+Use EXACTLY these figures—do not change numbers or totals.
 
 INPUT
 - Postcode: {data['postcode']}
-- Cleaning Type: {data['cleaning_type']}
-- Property Type: {data['property_type']}
+- Cleaning Type: {data['cleaning_type'].replace('_',' ').title()}
+- Property Type: {data['property_type'].title()}
 - Bedrooms: {data['bedrooms']}
 - Bathrooms: {data['bathrooms']}
 - WC: {data['wc']}
-- Pets: {data['pets']}
+- Pets present: {"Yes" if data['pets_flag'] else "No"}
+- Urgent booking: {"Yes" if data['urgent_flag'] else "No"}
+- Travel flag: {"Yes" if data['travel_flag'] else "No"}
 
 Calculated totals (fixed):
 - Final Total: £{total}
 - Breakdown lines:
 {chr(10).join("- " + line for line in breakdown)}
-
-Optional add-ons (for context only; recommend max 2 relevant):
-{upsell_text}
+{"\nAdditional notes:\n" + notes_text if notes_text else ""}
 
 OUTPUT: return Markdown with sections:
 ## Quote
 - Show the Final Total clearly and bullet the breakdown (use the lines above verbatim).
 
-## Optional Upsells
-- Suggest up to 2 relevant add-ons with their exact prices.
-- Keep to a short sentence each.
-
 ## Message
-- Friendly 2–3 sentence note with CTA to book now.
+- Friendly 2–3 sentence note with CTA to book now (email: Seb.barrientos@hotmail.com or WhatsApp: 07526069139).
 """
 
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role":"user","content": prompt}],
+            messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=700,
         )
