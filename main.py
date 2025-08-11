@@ -241,5 +241,13 @@ def get_footer_disclaimer():
         "End-of-Tenancy excludes maintenance/repairs. Carpet results vary by fibre, age, and prior treatments."
     )
 
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
