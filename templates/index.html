@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Get a Quote - CleanQuote{% endblock %}
-{% block subtitle %}Get an instant, itemised cleaning quote.{% endblock %}
+{% block title %}Get a Quote – Alba & Co Services{% endblock %}
+{% block subtitle %}Premium, reliable cleans across London — instant quotes, fast bookings.{% endblock %}
 
 {% block body %}
 <form action="/quote" method="POST">
   <div class="row">
     <div>
       <label>Postcode</label>
-      <input name="postcode" required placeholder="e.g. RG12 7RX"/>
+      <input name="postcode" required placeholder="e.g. SE2 5HG"/>
     </div>
     <div>
       <label>Cleaning type</label>
@@ -37,6 +37,7 @@
     <div>
       <label>Bathrooms</label>
       <input name="bathrooms" type="number" min="0" value="1" required/>
+      <div class="sub">First bathroom included for End of Tenancy.</div>
     </div>
     <div>
       <label>WC (extra cloakroom)</label>
@@ -44,23 +45,34 @@
     </div>
   </div>
 
-  <div class="row">
-    <div>
-      <label>Pets</label>
-      <select name="pets"><option>No</option><option>Yes</option></select>
+  <div class="card">
+    <strong>Extras & surcharges</strong>
+    <div class="row" style="margin-top:10px">
+      <label><input type="checkbox" name="pets_flag" value="1"> Pets present (+£30)</label>
+      <label><input type="checkbox" name="urgent_flag" value="1"> Urgent (within 48hrs) (+£50)</label>
     </div>
-    <div>
-      <label>Optional add‑ons</label>
-      <select name="addons" multiple size="4">
-        <option value="linen_service">Linen Service (£30)</option>
-        <option value="carpet_clean_living_area">Carpet: Living area (£25)</option>
-        <option value="carpet_clean_hallway">Carpet: Hallway (£8)</option>
-        <option value="carpet_clean_large_rug">Carpet: Large rug (£12)</option>
-      </select>
-      <div class="sub">Hold Ctrl/Cmd to select multiples</div>
-    </div>
+    <label style="margin-top:8px">
+      <input type="checkbox" name="travel_flag" value="1">
+      Outside A4/A2 — travel surcharge may apply (we’ll confirm)
+    </label>
   </div>
 
   <button class="btn" type="submit">Get quote</button>
 </form>
+
+<!-- Optional: lightweight content to look more complete -->
+<section style="margin-top:24px">
+  <h2>About Us</h2>
+  <p>Alba &amp; Co Services delivers professional residential and end‑of‑tenancy cleaning across London. Our trained teams arrive on time, bring eco‑friendly products on request, and work to a detailed checklist for a spotless finish. We operate seven days a week and can accommodate same‑day requests where available.</p>
+</section>
+
+<section style="margin-top:16px">
+  <h2>FAQs</h2>
+  <p><strong>What’s included in End of Tenancy cleaning?</strong><br>Thorough clean of all rooms including kitchen appliances (inside/out), cupboards, limescale removal, and detailed finishing. First bathroom included; extra bathrooms and WCs are priced separately.</p>
+  <p><strong>Do you bring supplies and equipment?</strong><br>Yes — our teams bring everything needed. Eco options available on request.</p>
+  <p><strong>Do you cover my area?</strong><br>We cover London. Outside the A4/A2 corridor may incur a travel surcharge — contact us for a quick confirmation.</p>
+  <p><strong>How quickly can you book me in?</strong><br>We operate 8am–9pm daily. Last‑minute bookings (within 48 hours) are usually possible and incur a £50 urgency fee.</p>
+  <p><strong>Are pets okay?</strong><br>Absolutely. A £30 pet surcharge applies to allow extra time and care.</p>
+  <p><strong>Do you guarantee your work?</strong><br>Yes. If anything is missed, we’ll return to make it right.</p>
+</section>
 {% endblock %}
