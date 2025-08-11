@@ -1,0 +1,30 @@
+{
+  "vat": 0,
+
+  "end_of_tenancy": {
+    "studio": 120,
+    "flat": { "1": 145, "2": 160, "3": 180, "4": 210, "5": 240 },
+    "house": { "1": 155, "2": 175, "3": 195, "4": 230, "5": 270 },
+    "extra_bathroom": 15,
+    "extra_wc": 10
+  },
+
+  "airbnb": {
+    "studio": 50,
+    "flat": { "1": 50, "2": 75, "3": 100, "4": 125, "5": 150 },
+    "house": { "1": 60, "2": 85, "3": 115, "4": 140, "5": 170 },
+    "extra_bathroom": 15
+  },
+
+  "optional_addons": {
+    "linen_service": 30,
+    "carpet_clean_small_bedroom": 20,
+    "carpet_clean_medium_bedroom": 25,
+    "carpet_clean_large_bedroom": 30,
+    "carpet_clean_stairs_per_step": 1,
+    "carpet_clean_living_area": 25,
+    "carpet_clean_hallway": 8,
+    "carpet_clean_large_rug": 12,
+    "carpet_clean_small_rug": 8
+  }
+}
