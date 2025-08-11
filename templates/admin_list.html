@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Quotes</h1>
+<form class="row gap">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search quotes…"/>
+  <button class="btn" type="submit">Search</button>
+</form>
+<table class="table">
+  <thead><tr>
+    <th>Created</th><th>Slot</th><th>Service</th><th>Total</th><th>Postcode</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th>
+  </tr></thead>
+  <tbody>
+    {% for x in items|reverse %}
+    <tr>
+      <td>{{ x.created_at }}</td>
+      <td>{{ x.slot }}</td>
+      <td>{{ x.service }}</td>
+      <td>£{{ '%.2f'|format(x.total) }}</td>
+      <td>{{ x.postcode }}</td>
+      <td>{{ x.contact_name }}</td>
+      <td>{{ x.email }}</td>
+      <td>{{ x.phone }}</td>
+      <td>{{ x.status }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="9" class="muted">No quotes yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
