@@ -1,41 +1,57 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>{% block title %}Alba & Co Services{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
-  <meta name="description" content="Instant quotes for cleaning services.">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alba &amp; Co Services — Instant Cleaning Quote</title>
+  <meta name="description" content="Instant cleaning quotes for End of Tenancy, Airbnb, Communal, General, and Carpet cleaning in Central London." />
+  <meta property="og:title" content="Alba &amp; Co Services — Instant Cleaning Quote" />
+  <meta property="og:description" content="Live pricing, online booking slots, fast quotes." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/static/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Alba & Co Services logo">
-      <h1>Alba & Co Services</h1>
+  <header class="site-header">
+    <div class="container row between center">
+      <div class="brand row center">
+        <img src="/static/logo.png" alt="Alba &amp; Co" class="logo" />
+        <span>Alba &amp; Co Services</span>
+      </div>
+      <nav class="nav">
+        <a href="/">Get a Quote</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
     </div>
+  </header>
 
-    <div class="sub">{% block subtitle %}{% endblock %}</div>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
 
-    {% block body %}{% endblock %}
+  <footer class="site-footer">
+    <div class="container">
+      <p>© Alba &amp; Co Services. All rights reserved.</p>
+    </div>
+  </footer>
 
-    <div class="footer">© 2025 Alba & Co — All rights reserved.</div>
-  </div>
-
-  <!-- Cookie/consent banner -->
-  <div id="cookie" style="position:fixed;left:0;right:0;bottom:0;background:#0a7ea4;color:#fff;padding:12px;display:none;">
-    We use essential cookies to run this site.
-    <button id="cookieOk" class="btn" style="margin-left:8px;background:#fff;color:#0a7ea4;">OK</button>
+  <div class="cookie-banner" id="cookieBanner" hidden>
+    <div class="container row between center">
+      <span>We use cookies to improve your experience.</span>
+      <button class="btn" onclick="acceptCookies()">OK</button>
+    </div>
   </div>
   <script>
-    (function () {
-      if (!localStorage.getItem('cookie_ok')) {
-        document.getElementById('cookie').style.display = 'block';
-        document.getElementById('cookieOk').onclick = function () {
-          localStorage.setItem('cookie_ok', '1');
-          document.getElementById('cookie').style.display = 'none';
-        };
-      }
+    function acceptCookies(){
+      localStorage.setItem('cookies_ok','1');
+      document.getElementById('cookieBanner').hidden = true;
+    }
+    (function(){
+      if(!localStorage.getItem('cookies_ok')) document.getElementById('cookieBanner').hidden=false;
     })();
   </script>
 </body>
