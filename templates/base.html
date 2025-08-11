@@ -11,14 +11,32 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Alba & Co Services logo">
       <h1>Alba & Co Services</h1>
     </div>
+
     <div class="sub">{% block subtitle %}{% endblock %}</div>
 
     {% block body %}{% endblock %}
 
-    <div class="footer">© {{ 2025 }} Alba & Co — All rights reserved.</div>
+    <div class="footer">© 2025 Alba & Co — All rights reserved.</div>
   </div>
+
+  <!-- Cookie/consent banner -->
+  <div id="cookie" style="position:fixed;left:0;right:0;bottom:0;background:#0a7ea4;color:#fff;padding:12px;display:none;">
+    We use essential cookies to run this site.
+    <button id="cookieOk" class="btn" style="margin-left:8px;background:#fff;color:#0a7ea4;">OK</button>
+  </div>
+  <script>
+    (function () {
+      if (!localStorage.getItem('cookie_ok')) {
+        document.getElementById('cookie').style.display = 'block';
+        document.getElementById('cookieOk').onclick = function () {
+          localStorage.setItem('cookie_ok', '1');
+          document.getElementById('cookie').style.display = 'none';
+        };
+      }
+    })();
+  </script>
 </body>
 </html>
