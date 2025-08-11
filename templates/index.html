@@ -1,72 +1,212 @@
-{% extends "base.html" %}
-{% block title %}Get a Quote – Alba & Co Services{% endblock %}
-{% block subtitle %}Premium, reliable cleans across London — instant quotes, fast bookings.{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<h1>Instant Quote</h1>
+<div class="wizard">
+  <div class="progress"><div class="bar" id="progressBar" style="width:20%"></div></div>
+  <form id="quoteForm" action="/book" method="post">
 
-{% block body %}
-<form action="/quote" method="POST">
-  <div class="row">
-    <div>
-      <label>Postcode</label>
-      <input name="postcode" required placeholder="e.g. SE2 5HG"/>
-    </div>
-    <div>
-      <label>Cleaning type</label>
-      <select name="cleaning_type" required>
-        <option value="end_of_tenancy">End of Tenancy</option>
-        <option value="airbnb">Airbnb Turnover</option>
-        <option value="communal">Communal Areas</option>
-        <option value="general_clean">General Clean</option>
-        <option value="carpet_clean">Specialist Carpet Clean</option>
-      </select>
-    </div>
-  </div>
+    <!-- Step 1: Property -->
+    <section class="step active" data-step="1">
+      <h2>Property</h2>
+      <div class="grid">
+        <label>Postcode
+          <input name="postcode" required placeholder="e.g., SW1A 1AA" />
+        </label>
+        <label>Address line 1
+          <input name="address1" />
+        </label>
+      </div>
+      <div class="row end gap">
+        <button type="button" class="btn next">Next</button>
+      </div>
+    </section>
 
-  <div class="row">
-    <div>
-      <label>Property type</label>
-      <select name="property_type" required>
-        <option value="flat">Flat</option>
-        <option value="house">House</option>
-        <option value="studio">Studio</option>
-      </select>
-    </div>
-    <div>
-      <label>Bedrooms</label>
-      <input name="bedrooms" type="number" min="0" value="2" required/>
-    </div>
-  </div>
+    <!-- Step 2: Service -->
+    <section class="step" data-step="2">
+      <h2>Service</h2>
+      <div class="grid">
+        <label>Service type
+          <select name="service" id="service" required>
+            <option value="eot">End of Tenancy</option>
+            <option value="airbnb">Airbnb Turnover</option>
+            <option value="communal">Communal Areas</option>
+            <option value="general">General Clean</option>
+            <option value="carpet">Carpet Cleaning</option>
+          </select>
+        </label>
+        <div data-svc="eot airbnb" class="svc svc-size">
+          <label>Property size
+            <select name="size" id="size">
+              <option value="studio">Studio</option>
+              <option value="1_bed">1 Bed</option>
+              <option value="2_bed">2 Bed</option>
+              <option value="3_bed">3 Bed</option>
+              <option value="4_bed">4 Bed</option>
+            </select>
+          </label>
+        </div>
+        <div data-svc="communal" class="svc">
+          <label>Block size
+            <select name="block_size" id="block_size">
+              <option value="small">Small</option>
+              <option value="medium">Medium</option>
+              <option value="large">Large</option>
+            </select>
+          </label>
+          <label>Frequency
+            <select name="frequency" id="frequency">
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly" selected>Monthly</option>
+            </select>
+          </label>
+          <label>Lifts (count)
+            <input type="number" min="0" name="lift_count" value="0" />
+          </label>
+          <label>
+            <input type="checkbox" name="bin_store" value="yes" /> Include bin store
+          </label>
+        </div>
+        <div data-svc="general" class="svc">
+          <label>Recurring
+            <select name="recurring">
+              <option value="no" selected>One-off</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </label>
+        </div>
+        <div data-svc="carpet" class="svc grid carpet">
+          <label>Rooms <input type="number" name="rooms" min="0" value="0" /></label>
+          <label>Lounge <input type="number" name="lounges" min="0" value="0" /></label>
+          <label>Bedrooms <input type="number" name="bedrooms" min="0" value="0" /></label>
+          <label>Landing/Hall <input type="number" name="landing_hall" min="0" value="0" /></label>
+          <label>Stairs (steps) <input type="number" name="stairs_steps" min="0" value="0" /></label>
+          <label>Stairs (flights) <input type="number" name="stairs_flights" min="0" value="0" /></label>
+          <label>Rugs (small) <input type="number" name="rugs_small" min="0" value="0" /></label>
+          <label>Rugs (large) <input type="number" name="rugs_large" min="0" value="0" /></label>
+        </div>
+        <div class="svc svc-common">
+          <label><input type="checkbox" name="pets" value="yes" /> Pets</label>
+          <label><input type="checkbox" name="urgent" value="yes" /> Same-day</label>
+          <label><input type="checkbox" name="congestion" value="yes" /> Congestion zone</label>
+          <label><input type="checkbox" name="parking" value="yes" /> Parking needed</label>
+          <label>Promo code <input name="promo" placeholder="e.g., WELCOME10" /></label>
+        </div>
+      </div>
+      <div class="row end gap">
+        <button type="button" class="btn prev">Back</button>
+        <button type="button" class="btn next">Next</button>
+      </div>
+    </section>
 
-  <div class="row">
-    <div>
-      <label>Bathrooms</label>
-      <input name="bathrooms" type="number" min="0" value="1" required/>
-    </div>
-    <div>
-      <label>WC (extra cloakroom)</label>
-      <input name="wc" type="number" min="0" value="0"/>
-    </div>
-  </div>
+    <!-- Step 3: Date/Time -->
+    <section class="step" data-step="3">
+      <h2>Schedule</h2>
+      <div class="grid">
+        <label>Date
+          <input type="date" name="date" id="date" required />
+        </label>
+        <label>Arrival window
+          <select name="slot" id="slot" required>
+            <option value="08:00–10:00">08:00–10:00</option>
+            <option value="10:00–12:00">10:00–12:00</option>
+            <option value="12:00–14:00">12:00–14:00</option>
+            <option value="14:00–16:00">14:00–16:00</option>
+          </select>
+        </label>
+      </div>
+      <div class="row end gap">
+        <button type="button" class="btn prev">Back</button>
+        <button type="button" class="btn next">Next</button>
+      </div>
+    </section>
 
-  <div class="row">
-    <div>
-      <label>Pets</label>
-      <select name="pets">
-        <option>No</option>
-        <option>Yes</option>
-      </select>
-    </div>
-    <div>
-      <label>Optional add-ons</label>
-      <select name="addons" multiple size="4">
-        <option value="linen_service">Linen Service (£30)</option>
-        <option value="carpet_clean_living_area">Carpet: Living area (£25)</option>
-        <option value="carpet_clean_hallway">Carpet: Hallway (£8)</option>
-        <option value="carpet_clean_large_rug">Carpet: Large rug (£12)</option>
-      </select>
-      <div class="sub">Hold Ctrl (Cmd on Mac) to select multiples</div>
-    </div>
-  </div>
+    <!-- Step 4: Notes -->
+    <section class="step" data-step="4">
+      <h2>Contact & Notes</h2>
+      <div class="grid">
+        <label>Your name <input name="name" required /></label>
+        <label>Email <input type="email" name="email" required /></label>
+        <label>Phone <input name="phone" required /></label>
+        <label>Notes <textarea name="notes" rows="3" placeholder="Access, pets, special requests…"></textarea></label>
+      </div>
+      <div class="row end gap">
+        <button type="button" class="btn prev">Back</button>
+        <button type="button" class="btn next">Summary</button>
+      </div>
+    </section>
 
-  <button class="btn" type="submit">Get quote</button>
-</form>
+    <!-- Step 5: Summary -->
+    <section class="step" data-step="5">
+      <h2>Summary & Total</h2>
+      <div id="preview" class="preview"></div>
+      <p class="muted">You’ll see the price above before submitting. We’ll email a copy of your quote.</p>
+      <div class="row end gap">
+        <button type="button" class="btn prev">Back</button>
+        <button type="submit" class="btn primary">Confirm & Send Quote</button>
+      </div>
+    </section>
+  </form>
+</div>
+
+<script>
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const progress = document.getElementById('progressBar');
+  const form = document.getElementById('quoteForm');
+  let current = 0;
+
+  function setStep(i){
+    steps.forEach((s, idx)=> s.classList.toggle('active', idx===i));
+    progress.style.width = ( (i+1) / steps.length * 100 ) + '%';
+    current = i;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    if(i===4) refreshPreview();
+  }
+
+  document.querySelectorAll('.next').forEach(b=> b.addEventListener('click', ()=> setStep(Math.min(current+1, steps.length-1))));
+  document.querySelectorAll('.prev').forEach(b=> b.addEventListener('click', ()=> setStep(Math.max(current-1, 0))));
+
+  const svcSelect = document.getElementById('service');
+  function renderSvc(){
+    const val = svcSelect.value;
+    document.querySelectorAll('.svc').forEach(el=>{
+      const allowed = (el.dataset.svc||'').split(' ');
+      el.style.display = (allowed.includes(val) || el.classList.contains('svc-common')) ? 'block' : 'none';
+    });
+    refreshPreview();
+  }
+  svcSelect.addEventListener('change', renderSvc);
+  renderSvc();
+
+  let t;
+  document.querySelectorAll('input, select, textarea').forEach(el=>{
+    el.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(refreshPreview, 250); });
+    el.addEventListener('change', ()=>{ clearTimeout(t); t = setTimeout(refreshPreview, 0); });
+  });
+
+  async function refreshPreview(){
+    const data = Object.fromEntries(new FormData(form));
+    const d = new Date(data.date||Date.now());
+    const isSunday = d.getUTCDay()===0;
+    const preview = document.getElementById('preview');
+    if(isSunday){ preview.innerHTML = '<div class="warn">Closed on Sundays. Please pick another day.</div>'; return; }
+
+    try{
+      const r = await fetch('/quote/preview', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+      const j = await r.json();
+      const lines = j.breakdown.map(([k,v])=>`<div class="line"><span>${k}</span><span>£${v.toFixed(2)}</span></div>`).join('');
+      preview.innerHTML = `<div class="card">${lines}<hr/><div class="total"><span>Total</span><span>£${j.total.toFixed(2)}</span></div></div>`;
+    }catch(e){
+      preview.innerHTML = '<div class="warn">Preview unavailable. You can still submit.</div>';
+    }
+  }
+
+  (function(){
+    const dt = document.getElementById('date');
+    const tomorrow = new Date(Date.now()+24*3600*1000);
+    dt.valueAsDate = tomorrow;
+  })();
+</script>
 {% endblock %}
