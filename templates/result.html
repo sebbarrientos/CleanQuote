@@ -1,12 +1,23 @@
-{% extends "base.html" %}
-{% block title %}Your Quote - CleanQuote{% endblock %}
-{% block subtitle %}Generated just now{% endblock %}
-
-{% block body %}
-  <div class="card content">
-    {{ result|safe }}
+{% extends 'base.html' %}
+{% block content %}
+<h1>Your Quote</h1>
+<div class="card">
+  <p>Hi {{ contact.name }},</p>
+  <p>Thanks for choosing <strong>{{ brand_name }}</strong>. Here’s your quote summary:</p>
+  <div class="lines">
+    {% for k,v in summary.breakdown %}
+      <div class="line"><span>{{ k }}</span><span>£{{ '%.2f'|format(v) }}</span></div>
+    {% endfor %}
   </div>
-  <p>
-    <a class="btn" href="/">Get another quote</a>
-  </p>
+  <hr/>
+  <div class="total"><span>Total</span><span>£{{ '%.2f'|format(summary.total) }}</span></div>
+
+  <h3>Booking details</h3>
+  <p><strong>Date/Window:</strong> {{ contact.date }} {{ contact.slot }}<br/>
+     <strong>Address:</strong> {{ contact.address1 }}, {{ contact.postcode }}<br/>
+     <strong>Contact:</strong> {{ contact.name }} · {{ contact.email }} · {{ contact.phone }}</p>
+
+  <p class="muted">{{ disclaimer }}</p>
+</div>
+<p><a class="btn" href="/">Create another quote</a></p>
 {% endblock %}
