@@ -2,3 +2,4 @@ Flask>=3.0
 gunicorn>=23.0
 openai>=1.30.0
 markdown>=3.6
+requests
