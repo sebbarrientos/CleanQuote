@@ -154,26 +154,34 @@ def compute_price(payload):
     return {"total": money(total), "breakdown": [[k, money(v)] for k, v in breakdown]}
 
 def send_quote_email(to_email: str, subject: str, html: str):
+    # Extra diagnostics so we can see what's wrong in Render logs
     if not RESEND_API_KEY or not to_email:
+        print("Email skipped | missing:", {
+            "RESEND_API_KEY": bool(RESEND_API_KEY),
+            "to_email_present": bool(to_email)
+        })
         return False, "Email disabled or missing address"
     try:
         import requests
         payload = {
-            "from": FROM_EMAIL or "quotes@albaandco.example",
+            "from": FROM_EMAIL or "onboarding@resend.dev",
             "to": [to_email],
             "bcc": [TO_FALLBACK] if TO_FALLBACK else [],
             "subject": subject,
             "html": html
         }
+        print("Email attempt | to:", to_email, "| from:", payload["from"], "| bcc:", payload["bcc"])
         r = requests.post(
-            'https://api.resend.com/emails',
+            "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
             json=payload,
             timeout=15
         )
+        print("Resend response | status:", r.status_code, "| body:", r.text)
         ok = r.status_code in (200, 202)
         return ok, r.text
     except Exception as e:
+        print("Email send error:", repr(e))
         return False, str(e)
 
 @app.route('/')
@@ -195,9 +203,10 @@ def book():
                            contact=form,
                            summary=price,
                            disclaimer=get_footer_disclaimer())
-    ok_client, _ = send_quote_email(form.get('email'), 'Your cleaning quote', html)
+    ok_client, resp = send_quote_email(form.get('email'), 'Your cleaning quote', html)
     if TO_FALLBACK:
         send_quote_email(TO_FALLBACK, 'New quote submission', html)
+    print("Book route | email to client ok?", ok_client)
 
     quotes = session.get('quotes', [])
     quotes.append({
