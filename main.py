@@ -153,24 +153,22 @@ def compute_price(payload):
 
     return {"total": money(total), "breakdown": [[k, money(v)] for k, v in breakdown]}
 
-def send_quote_email(to_email: str, subject: str, html: str):
-    # Extra diagnostics so we can see what's wrong in Render logs
-    if not RESEND_API_KEY or not to_email:
+def send_quote_email_multi(to_emails: list, subject: str, html: str):
+    if not RESEND_API_KEY or not to_emails:
         print("Email skipped | missing:", {
             "RESEND_API_KEY": bool(RESEND_API_KEY),
-            "to_email_present": bool(to_email)
+            "to_emails": to_emails
         })
         return False, "Email disabled or missing address"
     try:
         import requests
         payload = {
             "from": FROM_EMAIL or "onboarding@resend.dev",
-            "to": [to_email],
-            "bcc": [TO_FALLBACK] if TO_FALLBACK else [],
+            "to": to_emails,
             "subject": subject,
             "html": html
         }
-        print("Email attempt | to:", to_email, "| from:", payload["from"], "| bcc:", payload["bcc"])
+        print("Email attempt | to:", to_emails)
         r = requests.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
@@ -198,15 +196,22 @@ def quote_preview():
 def book():
     form = request.form.to_dict()
     price = compute_price(form)
-    html = render_template('result.html',
-                           brand_name='Alba & Co Services',
-                           contact=form,
-                           summary=price,
-                           disclaimer=get_footer_disclaimer())
-    ok_client, resp = send_quote_email(form.get('email'), 'Your cleaning quote', html)
+    html = render_template(
+        'result.html',
+        brand_name='Alba & Co Services',
+        contact=form,
+        summary=price,
+        disclaimer=get_footer_disclaimer()
+    )
+
+    recipients = []
+    if form.get('email'):
+        recipients.append(form.get('email'))
     if TO_FALLBACK:
-        send_quote_email(TO_FALLBACK, 'New quote submission', html)
-    print("Book route | email to client ok?", ok_client)
+        recipients.append(TO_FALLBACK)
+
+    ok_send, resp = send_quote_email_multi(recipients, 'Your cleaning quote', html)
+    print("Book route | recipients:", recipients, "| ok?", ok_send)
 
     quotes = session.get('quotes', [])
     quotes.append({
@@ -218,15 +223,17 @@ def book():
         'email': form.get('email', ''),
         'phone': form.get('phone', ''),
         'slot': f"{form.get('date')} {form.get('slot')}",
-        'status': 'Sent' if ok_client else 'New'
+        'status': 'Sent' if ok_send else 'New'
     })
     session['quotes'] = quotes
 
-    return render_template('result.html',
-                           brand_name='Alba & Co Services',
-                           contact=form,
-                           summary=price,
-                           disclaimer=get_footer_disclaimer())
+    return render_template(
+        'result.html',
+        brand_name='Alba & Co Services',
+        contact=form,
+        summary=price,
+        disclaimer=get_footer_disclaimer()
+    )
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
